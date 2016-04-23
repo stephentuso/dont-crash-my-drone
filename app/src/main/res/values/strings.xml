@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Don\'t Crash My Drone</string>
+    <string name="Key_name">name</string>
 </resources>
