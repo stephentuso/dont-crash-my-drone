@@ -8,10 +8,25 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.dontcrashmydrone.dontcrashmydrone.MainActivity">
+    tools:context=".StartFlightActivity">
 
     <TextView
+        android:id="@+id/welcomeTitleTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!"/>
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="You\'re flight is ready to launch..." />
+
+    <TextView
+        android:id="@+id/helloTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:gravity="center_horizontal"
+        android:layout_marginBottom="32dp"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textStyle="bold"
+        android:text="Start Flight" />
+
+
 </RelativeLayout>
