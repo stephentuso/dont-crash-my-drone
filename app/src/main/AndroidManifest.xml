@@ -21,6 +21,7 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <activity android:name=".ui.WeatherActivity"/>
 
         <service android:name=".NotificationService"/>
         <receiver android:name=".NotificationReceiver"/>
