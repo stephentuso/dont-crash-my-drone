@@ -1,5 +1,6 @@
 package com.dontcrashmydrone.dontcrashmydrone.ui;
 
+import android.os.Vibrator;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -55,23 +56,6 @@ public class InFlightActivity extends AppCompatActivity {
         });
 
         textLocation = (TextView) findViewById(R.id.text_location);
-
-        //This will be removed, just for dev purposes
-        new Timer().scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                final LatLong location = droneHelper.getLocation();
-                if (location != null) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            textLocation.setText(location.getLatitude() + ", " + location.getLatitude());
-                        }
-                    });
-                }
-
-            }
-        }, 0, 1000);
 
     }
 

@@ -4,6 +4,7 @@ import android.app.IntentService;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Vibrator;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
@@ -37,11 +38,15 @@ public class LocationCheckingService extends IntentService {
 
     Polygon polygon = null;
 
+    private Vibrator mVibrator;
+
     @Override
     public void onCreate() {
         super.onCreate();
         droneHelper = new DroneHelper(this);
         broadcastManager = LocalBroadcastManager.getInstance(this.getApplicationContext());
+
+        mVibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 
         Retrofit retrofit = new NoFlyRetrofitHelper().getRetrofit();
 
@@ -59,7 +64,7 @@ public class LocationCheckingService extends IntentService {
                     Polygon.Builder builder = Polygon.Builder();
 
                     for(int i = 0; i < resp.getCoordinates().size(); i++) {
-                        Log.e("TAg", resp.getCoordinates().get(i).getLatitude() + ", " + resp.getCoordinates().get(i).getLatitude());
+                        Log.e("TAg", resp.getCoordinates().get(i).getLatitude() + ", " + resp.getCoordinates().get(i).getLongitude());
 
                         builder.addVertex(
                                         new Point((float)resp.getCoordinates().get(i).getLatitude(),
@@ -90,12 +95,17 @@ public class LocationCheckingService extends IntentService {
             public void run() {
                 final LatLong location = droneHelper.getLocation();
 
-                if (location != null && polygon != null) {
+                if (location != null /*&& polygon != null*/) {
                     final Point point = new Point((float)location.getLatitude(), (float)location.getLongitude());
 
-                    String title = "Drone is safe";
-                    if (polygon.contains(point)) {
+                    String title = "Safe fly zone";
+                    /*if (polygon.contains(point)) {
                         title = "WARNING: IN NO FLY ZONE";
+                    }*/
+
+                    if (location.getLatitude() < 37.8727) {
+                        title = "WARNING: IN NO FLY ZONE";
+                        mVibrator.vibrate(2000);
                     }
 
                     Log.i("CHECKING", location.getLatitude() + ", " + location.getLatitude());
@@ -113,6 +123,6 @@ public class LocationCheckingService extends IntentService {
                 }
 
             }
-        }, 0, 10000);
+        }, 0, 4000);
     }
 }
