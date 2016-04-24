@@ -13,6 +13,7 @@
         android:theme="@style/AppTheme"
         android:name=".DroneApplication">
         <activity android:name=".StartFlightActivity">
+        <activity android:name=".ui.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
