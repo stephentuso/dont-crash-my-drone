@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -23,6 +24,7 @@ import com.dontcrashmydrone.dontcrashmydrone.DroneHelper;
 import com.dontcrashmydrone.dontcrashmydrone.NotificationReceiver;
 import com.dontcrashmydrone.dontcrashmydrone.NotificationService;
 import com.dontcrashmydrone.dontcrashmydrone.R;
+import com.dontcrashmydrone.dontcrashmydrone.util.LocationHelper;
 import com.dontcrashmydrone.dontcrashmydrone.weather.Current;
 import com.dontcrashmydrone.dontcrashmydrone.weather.Forecast;
 import com.o3dr.services.android.lib.drone.connection.ConnectionResult;
@@ -51,6 +53,8 @@ public class StartFlightActivity extends AppCompatActivity {
 
     private boolean loginStarted = false;
 
+    private LocationHelper mLocationHelper;
+
     private NotificationReceiver receiver;
     DroneHelper droneHelper;
 
@@ -73,18 +77,42 @@ public class StartFlightActivity extends AppCompatActivity {
         setContentView(R.layout.activity_start);
         ButterKnife.bind(this);
 
+        mLocationHelper = new LocationHelper(this);
+
         mProgressBar.setVisibility(View.INVISIBLE);
 
-        final double latitude = 32.8267;
-        final double longitude = -122.423;
+        mLocationHelper.getLocation(new LocationHelper.LocationCallback() {
+            @Override
+            public void success(Location location) {
+                getForecast(location.getLatitude(), location.getLongitude());
+            }
+
+            @Override
+            public void error() {
+
+            }
+        });
+
+        //final double latitude = 32.8267;
+        //final double longitude = -122.423;
 
         mRefreshImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getForecast(latitude, longitude);
+                mLocationHelper.getLocation(new LocationHelper.LocationCallback() {
+                    @Override
+                    public void success(Location location) {
+                        getForecast(location.getLatitude(), location.getLongitude());
+                    }
+
+                    @Override
+                    public void error() {
+
+                    }
+                });
             }
         });
-        getForecast(latitude, longitude);
+
         Log.d(TAG, "Main UI code is running");
 
         droneHelper = new DroneHelper(this);
