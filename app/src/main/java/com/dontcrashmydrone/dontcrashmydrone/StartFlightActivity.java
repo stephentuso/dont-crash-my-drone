@@ -47,7 +47,6 @@ public class StartFlightActivity extends AppCompatActivity {
             public void onResponse(Call<Geometry> call, Response<Geometry> response) {
                 if (response.isSuccessful()) {
                     Geometry resp = response.body();
-                    DecimalFormat decimalFormat = new DecimalFormat("#");
 
                     //Log.e(TAG, resp.getCoordinates().toString());
 
@@ -58,8 +57,6 @@ public class StartFlightActivity extends AppCompatActivity {
                                 .addVertex(
                                         new Point((float)resp.getCoordinates().get(i).getLatitude(),
                                                 (float)resp.getCoordinates().get(i).getLongitude())).build();
-
-                        Log.e(TAG, polygon.toString());
 
                     }
 

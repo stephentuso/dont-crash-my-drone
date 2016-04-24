@@ -25,6 +25,7 @@
         <activity android:name=".ui.MainActivity"></activity>
 
         <service android:name=".NotificationService"/>
+        <service android:name=".LocationCheckingService"/>
 
         <activity android:name=".ui.InFlightActivity">
         </activity>

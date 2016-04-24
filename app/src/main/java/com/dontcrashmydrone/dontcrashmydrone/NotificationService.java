@@ -1,10 +1,23 @@
 package com.dontcrashmydrone.dontcrashmydrone;
 
 import android.app.IntentService;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.nfc.Tag;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
+import android.os.Message;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+
+import com.o3dr.services.android.lib.coordinate.LatLong;
+
+import java.io.Console;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Created by amohnacs on 4/23/16.
@@ -29,14 +42,34 @@ public class NotificationService extends IntentService {
 
     DroneHelper droneHelper;
 
+    private Handler handler;
+
     public NotificationService() {
         super("com.dontcrashmydrone.dontcrashmydrone.NotificationService");
     }
+
+    LocalBroadcastManager broadcastManager;
+
+    private BroadcastReceiver receiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.i("SERVICE", "Recieved intent");
+
+            String location = intent.getStringExtra(LocationCheckingService.KEY_LOCATION);
+            String[] components = location.split(",");
+
+            String lat = components[0];
+            String lng = components[1];
+
+        }
+    };
 
     @Override
     public void onCreate() {
         super.onCreate();
         droneHelper = new DroneHelper(this);
+        broadcastManager = LocalBroadcastManager.getInstance(this.getApplicationContext());
+        broadcastManager.registerReceiver(receiver, new IntentFilter(LocationCheckingService.DRONE_LOCATION_UPDATED));
     }
 
     @Override
@@ -46,51 +79,13 @@ public class NotificationService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        String receive = intent.getStringExtra(SERVICE_IN_PARAM); //todo: not needed
-
-        //where our actions will take place
-
-
-
-
-
-
-
-
-        switch (mNotificationType) {
-            case SEND_FIVE_MILE:
-
-                break;
-
-            case SEND_ONE_MILE:
-
-
-                break;
-
-            case SEND_CONTACT:
-
-
-                break;
-
-            case SEND_STOP_CONTACT:
-
-
-                break;
-
-
-            default:
-                Log.e(TAG, "invalid input");
-                break;
-        }
-
-
 
     }
 
     /** Called when The service is no longer used and is being destroyed */
     @Override
     public void onDestroy() {
-
+        broadcastManager.unregisterReceiver(receiver);
     }
 
     private void sendAlert(int receiverMessage) {

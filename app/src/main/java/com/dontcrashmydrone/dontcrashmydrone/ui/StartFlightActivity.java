@@ -21,6 +21,7 @@ import android.widget.Toast;
 
 import com.dontcrashmydrone.dontcrashmydrone.DroneConnectionStateListener;
 import com.dontcrashmydrone.dontcrashmydrone.DroneHelper;
+import com.dontcrashmydrone.dontcrashmydrone.LocationCheckingService;
 import com.dontcrashmydrone.dontcrashmydrone.NotificationReceiver;
 import com.dontcrashmydrone.dontcrashmydrone.NotificationService;
 import com.dontcrashmydrone.dontcrashmydrone.R;
@@ -113,8 +114,6 @@ public class StartFlightActivity extends AppCompatActivity {
             }
         });
 
-        Log.d(TAG, "Main UI code is running");
-
         droneHelper = new DroneHelper(this);
         udpPortField = (EditText) findViewById(R.id.edit_text_udp) ;
 
@@ -144,7 +143,11 @@ public class StartFlightActivity extends AppCompatActivity {
         receiver = new NotificationReceiver();
         registerReceiver(receiver, filter);
 
-        startService();
+        Intent notificationIntent = new Intent(this, NotificationService.class);
+        startService(notificationIntent);
+
+        Intent locationIntent = new Intent(this, LocationCheckingService.class);
+        startService(locationIntent);
     }
 
     @Override
