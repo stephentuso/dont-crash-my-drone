@@ -2,9 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/DontCrashMyDrone.iml" filepath="$PROJECT_DIR$/DontCrashMyDrone.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/dont-crash-my-drone.iml" filepath="$PROJECT_DIR$/.idea/dont-crash-my-drone.iml" />
+      <module fileurl="file://$PROJECT_DIR$/dont-crash-my-drone.iml" filepath="$PROJECT_DIR$/dont-crash-my-drone.iml" />
     </modules>
   </component>
 </project>
