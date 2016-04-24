@@ -56,6 +56,8 @@ public class StartFlightActivity extends AppCompatActivity {
 
     private LocationHelper mLocationHelper;
 
+    public String mGlobalLocation;
+
     private NotificationReceiver receiver;
     DroneHelper droneHelper;
 
@@ -103,6 +105,7 @@ public class StartFlightActivity extends AppCompatActivity {
                 mLocationHelper.getLocation(new LocationHelper.LocationCallback() {
                     @Override
                     public void success(Location location) {
+                        mGlobalLocation = mLocationHelper.getAddress(location) + "";
                         getForecast(location.getLatitude(), location.getLongitude());
                     }
 
@@ -241,6 +244,10 @@ public class StartFlightActivity extends AppCompatActivity {
         unregisterReceiver(receiver);
     }
 
+    private String getAddressLocation() {
+        return mGlobalLocation;
+    }
+
     private void getForecast(double latitude, double longitude) {
         String apiKey = "e7220de7fb16ee318ac979fd820daf74";
         String forecastUrl = "https://api.forecast.io/forecast/" + apiKey + "/" + latitude + "," + longitude;
@@ -330,7 +337,7 @@ public class StartFlightActivity extends AppCompatActivity {
         String timezone = forecast.getString("timezone");
         JSONObject currently = forecast.getJSONObject("currently");
         Log.i(TAG, "From JSON: " + timezone);
-        String LocationAddress = "Medina, WA";
+        String LocationAddress = getAddressLocation();
         Current current = new Current();
 
         current.setHumidity(currently.getDouble("humidity"));
