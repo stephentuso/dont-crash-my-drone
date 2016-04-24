@@ -1,5 +1,6 @@
 package com.dontcrashmydrone.dontcrashmydrone.ui;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.support.v7.app.AppCompatActivity;
@@ -7,11 +8,15 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 
+import com.dontcrashmydrone.dontcrashmydrone.DroneConnectionStateListener;
 import com.dontcrashmydrone.dontcrashmydrone.DroneHelper;
 import com.dontcrashmydrone.dontcrashmydrone.NotificationReceiver;
 import com.dontcrashmydrone.dontcrashmydrone.NotificationService;
 import com.dontcrashmydrone.dontcrashmydrone.R;
+import com.o3dr.android.client.interfaces.DroneListener;
+import com.o3dr.services.android.lib.drone.connection.ConnectionResult;
 
 /**
  * Launcher activity
@@ -101,14 +106,44 @@ public class StartFlightActivity extends AppCompatActivity {
 
     private void onStartButtonClick() {
         String input = udpPortField.getText().toString();
+
         //Ensure input is valid int
+        int port = -1;
         try {
-            int port = Integer.parseInt(input);
+            port = Integer.parseInt(input);
+        } catch (Exception e) {}
+
+        final ProgressDialog dialog = new ProgressDialog(this);
+        dialog.setMessage("Connecting");
+
+        DroneConnectionStateListener listener = new DroneConnectionStateListener() {
+            @Override
+            public void onConnected() {
+                startInFlightActivity();
+                droneHelper.unregisterListener(this);
+                dialog.dismiss();
+            }
+
+            @Override
+            public void onDroneConnectionFailed(ConnectionResult result) {
+                Toast.makeText(getApplicationContext(), "Error connecting to drone", Toast.LENGTH_SHORT).show();
+                droneHelper.unregisterListener(this);
+                dialog.dismiss();
+            }
+
+            @Override
+            public void onDisconnected() {}
+        };
+        droneHelper.registerListener(listener);
+
+        dialog.show();
+
+        if (port == -1) {
+            droneHelper.connectToDrone(); //Will use default port
+        } else {
             droneHelper.connectToDrone(port);
-        } catch (Exception e) {
-            droneHelper.connectToDrone();
         }
-        startInFlightActivity();
+
     }
 
     private void startInFlightActivity() {

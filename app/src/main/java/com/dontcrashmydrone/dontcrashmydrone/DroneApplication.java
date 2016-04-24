@@ -21,6 +21,9 @@ import com.o3dr.services.android.lib.drone.connection.ConnectionType;
 import com.o3dr.services.android.lib.drone.property.Gps;
 import com.o3dr.services.android.lib.drone.property.Type;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by stephentuso on 4/23/16.
  */
@@ -55,6 +58,18 @@ public class DroneApplication extends Application implements DroneListener, Towe
 
     public Drone getDrone() {
         return drone;
+    }
+
+    public void addDroneListener(DroneListener listener) {
+        if (listener == null)
+            return;
+        drone.registerDroneListener(listener);
+    }
+
+    public void removeDroneListener(DroneListener listener) {
+        if (listener == null)
+            return;
+        drone.unregisterDroneListener(listener);
     }
 
     @Override

@@ -63,6 +63,14 @@ public class DroneHelper {
         }
     }
 
+    public void registerListener(DroneListener listener) {
+        droneApp.addDroneListener(listener);
+    }
+
+    public void unregisterListener(DroneListener listener) {
+        droneApp.removeDroneListener(listener);
+    }
+
     public void connectToDrone() {
         connectToDrone(DEFAULT_UDP_PORT);
     }
