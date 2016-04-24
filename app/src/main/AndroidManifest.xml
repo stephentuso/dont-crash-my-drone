@@ -2,6 +2,7 @@
 <manifest package="com.dontcrashmydrone.dontcrashmydrone"
           xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.VIBRATE"/>
     <uses-permission android:name="android.permission.INTERNET"/>
 
@@ -12,7 +13,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:name=".DroneApplication">
-        <activity android:name=".StartFlightActivity">
+        <activity android:name=".StartFlightActivity"/>
         <activity android:name=".ui.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -22,9 +23,7 @@
         </activity>
 
         <service android:name=".NotificationService"/>
-        <receiver android:name=".NotificationReceiver">
-
-        </receiver>
+        <receiver android:name=".NotificationReceiver"/>
 
     </application>
 
