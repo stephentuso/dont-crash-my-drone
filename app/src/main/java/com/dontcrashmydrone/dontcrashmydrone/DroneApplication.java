@@ -64,6 +64,12 @@ public class DroneApplication extends Application implements DroneListener, Towe
         if (listener == null)
             return;
         drone.registerDroneListener(listener);
+
+        if (listener instanceof DroneConnectionStateListener) {
+            if (drone.isConnected())
+                ((DroneConnectionStateListener) listener).onConnected();
+        }
+
     }
 
     public void removeDroneListener(DroneListener listener) {
