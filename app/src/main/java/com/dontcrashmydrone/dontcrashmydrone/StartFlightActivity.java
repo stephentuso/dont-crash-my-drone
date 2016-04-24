@@ -24,11 +24,6 @@ public class StartFlightActivity extends AppCompatActivity {
         receiver = new NotificationReceiver();
         registerReceiver(receiver, filter);
 
-
-
-
-
-
         startService();
     }
 
@@ -48,5 +43,11 @@ public class StartFlightActivity extends AppCompatActivity {
     // Method to stop the service
     public void stopService(View view) {
         stopService(new Intent(getBaseContext(), NotificationService.class));
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(receiver);
     }
 }
