@@ -24,16 +24,10 @@ public class MainActivity extends AppCompatActivity {
         mStartButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String name = mNameField.getText().toString();
-                // Toast.makeText(MainActivity.this, name, Toast.LENGTH_LONG).show();
-                startFlying(name);
+                Intent intent = new Intent(MainActivity.this, WeatherActivity.class);
+                startActivity(intent);
+                finish();
             }
         });
-    }
-
-    private void startFlying(String name){
-        Intent intent = new Intent(this, WeatherActivity.class);
-        intent.putExtra(getString(R.string.Key_name), name);
-        startActivity(intent);
     }
 }
