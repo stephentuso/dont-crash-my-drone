@@ -1,6 +1,7 @@
 package com.dontcrashmydrone.dontcrashmydrone.ui;
 
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.support.v7.app.AppCompatActivity;
@@ -115,8 +116,9 @@ public class StartFlightActivity extends AppCompatActivity {
 
         final ProgressDialog dialog = new ProgressDialog(this);
         dialog.setMessage("Connecting");
+        dialog.setCanceledOnTouchOutside(false);
 
-        DroneConnectionStateListener listener = new DroneConnectionStateListener() {
+        final DroneConnectionStateListener listener = new DroneConnectionStateListener() {
             @Override
             public void onConnected() {
                 startInFlightActivity();
@@ -134,9 +136,22 @@ public class StartFlightActivity extends AppCompatActivity {
             @Override
             public void onDisconnected() {}
         };
-        droneHelper.registerListener(listener);
 
+        dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialogInterface) {
+                droneHelper.unregisterListener(listener);
+            }
+        });
+        dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialogInterface) {
+                droneHelper.unregisterListener(listener);
+            }
+        });
         dialog.show();
+
+        droneHelper.registerListener(listener);
 
         if (port == -1) {
             droneHelper.connectToDrone(); //Will use default port
