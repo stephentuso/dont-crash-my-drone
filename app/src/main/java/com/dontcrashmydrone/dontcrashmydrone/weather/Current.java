@@ -13,6 +13,7 @@ public class Current {
     private double mPrecipChance;
     private String mSummary;
     private String mTimeZone;
+    private String mLocationAddress;
 
     public String getTimeZone() {
         return mTimeZone;
@@ -25,6 +26,10 @@ public class Current {
     public double getHumidity() {
         return mHumidity;
     }
+
+    public String getLocationAddress() {return mLocationAddress;}
+
+    public void setLocationAddress(String LocationAddress) { mLocationAddress = LocationAddress;}
 
     public void setHumidity(double humidity) {
         mHumidity = humidity;

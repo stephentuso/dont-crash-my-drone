@@ -62,14 +62,14 @@ public class StartFlightActivity extends AppCompatActivity {
 
     private Forecast mForecast;
 
-    @Bind(R.id.timeLabel)
-    TextView mTimeLabel;
+    @Bind(R.id.timeLabel) TextView mTimeLabel;
     @Bind(R.id.temperatureLabel) TextView mTemperatureLabel;
     @Bind(R.id.humidityValue) TextView mHumidityValue;
     @Bind(R.id.precipValue) TextView mPrecipValue;
     @Bind(R.id.summaryLabel) TextView mSummaryLabel;
     @Bind(R.id.refreshImageView) ImageView mRefreshImageView;
     @Bind(R.id.progressBar) ProgressBar mProgressBar;
+    @Bind(R.id.locationLabel) TextView mLocationAddressValue;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -312,6 +312,7 @@ public class StartFlightActivity extends AppCompatActivity {
         mTemperatureLabel.setText(mForecast.getCurrent().getTemperature() + "");
         mTimeLabel.setText("At " + mForecast.getCurrent().getFormattedTime() + " it will be");
         mHumidityValue.setText(mForecast.getCurrent().getHumidity() + "");
+        mLocationAddressValue.setText(mForecast.getCurrent().getLocationAddress() + "");
         mPrecipValue.setText(mForecast.getCurrent().getPrecipChance() + "%");
         mSummaryLabel.setText(mForecast.getCurrent().getSummary());
     }
@@ -326,7 +327,7 @@ public class StartFlightActivity extends AppCompatActivity {
         String timezone = forecast.getString("timezone");
         JSONObject currently = forecast.getJSONObject("currently");
         Log.i(TAG, "From JSON: " + timezone);
-
+        String LocationAddress = "California";
         Current current = new Current();
 
         current.setHumidity(currently.getDouble("humidity"));
@@ -334,6 +335,7 @@ public class StartFlightActivity extends AppCompatActivity {
         current.setPrecipChance(currently.getDouble("precipProbability"));
         current.setSummary(currently.getString("summary"));
         current.setTemperature(currently.getDouble("temperature"));
+        current.setLocationAddress(LocationAddress + "");
         current.setTimeZone(timezone);
 
         Log.d(TAG, current.getFormattedTime());

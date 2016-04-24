@@ -3,12 +3,17 @@ package com.dontcrashmydrone.dontcrashmydrone.util;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.widget.Toast;
+
+import java.util.Locale;
 
 /**
  * Created by stephentuso on 4/24/16.
@@ -67,6 +72,15 @@ public class LocationHelper {
 
             }
         });
+    }
+
+    public @Nullable  Address getAddress(Location location) {
+        Geocoder geocoder = new Geocoder(context, Locale.getDefault());
+        try {
+            return geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1).get(0);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
 }
