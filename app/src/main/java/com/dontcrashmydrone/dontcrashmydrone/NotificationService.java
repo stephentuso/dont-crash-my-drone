@@ -2,6 +2,7 @@ package com.dontcrashmydrone.dontcrashmydrone;
 
 import android.app.IntentService;
 import android.content.Intent;
+import android.nfc.Tag;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -17,18 +18,30 @@ public class NotificationService extends IntentService {
     public boolean mDangerZone = false;
 
     private int mNotificationType = 0;
-    public final int SEND_FIVE_MILE = 1;
-    public final int SEND_ONE_MILE = 2;
-    public final int SEND_CONTACT = 3;
-    public final int SEND_STOP_CONTACT = 4;
+    public static final int SEND_FIVE_MILE = 1;
+    public static final int SEND_ONE_MILE = 2;
+    public static final int SEND_CONTACT = 3;
+    public static final int SEND_STOP_CONTACT = 4;
 
     int mStartMode;/** indicates how to behave if the service is killed */
     IBinder mBinder;/** interface for clients that bind */
     boolean mAllowRebind;/** indicates whether onRebind should be used */
 
+    DroneHelper droneHelper;
 
-    public NotificationService(String name) {
-        super(name);
+    public NotificationService() {
+        super("com.dontcrashmydrone.dontcrashmydrone.NotificationService");
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        droneHelper = new DroneHelper(this);
+    }
+
+    @Override
+    public void onStart(Intent intent, int startId) {
+        super.onStart(intent, startId);
     }
 
     @Override
