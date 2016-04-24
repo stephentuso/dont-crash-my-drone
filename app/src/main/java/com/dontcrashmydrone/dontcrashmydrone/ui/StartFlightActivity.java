@@ -330,7 +330,7 @@ public class StartFlightActivity extends AppCompatActivity {
         String timezone = forecast.getString("timezone");
         JSONObject currently = forecast.getJSONObject("currently");
         Log.i(TAG, "From JSON: " + timezone);
-        String LocationAddress = "California";
+        String LocationAddress = "Medina, WA";
         Current current = new Current();
 
         current.setHumidity(currently.getDouble("humidity"));
