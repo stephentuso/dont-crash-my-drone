@@ -45,7 +45,7 @@ public class WeatherActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_weather);
         ButterKnife.bind(this);
 
         mProgressBar.setVisibility(View.INVISIBLE);
@@ -66,6 +66,7 @@ public class WeatherActivity extends AppCompatActivity {
     private void getForecast(double latitude, double longitude) {
         String apiKey = "e7220de7fb16ee318ac979fd820daf74";
         String forecastUrl = "https://api.forecast.io/forecast/" + apiKey + "/" + latitude + "," + longitude;
+
 
         if (isNetworkAvailable()) {
             toggleRefresh();
