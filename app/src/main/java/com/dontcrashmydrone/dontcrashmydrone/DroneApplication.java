@@ -26,7 +26,7 @@ import com.o3dr.services.android.lib.drone.property.Type;
  */
 public class DroneApplication extends Application implements DroneListener, TowerListener {
 
-    public static final int DEFAULT_UDP_PORT = 14550; //TODO: Add a preference for this
+    private static final String TAG = DroneApplication.class.getSimpleName();
 
     private ControlTower controlTower;
 
@@ -44,12 +44,10 @@ public class DroneApplication extends Application implements DroneListener, Towe
         this.controlTower.connect(this);
     }
 
-    public void connectToDrone() {
+    public void connectToDrone(int udpPort) {
         Log.i("DRONE", "Connecting to drone");
         Bundle extraParams = new Bundle();
-        //extraParams.putString(ConnectionType.EXTRA_TCP_SERVER_IP, "10.0.2.15");
-        //extraParams.putInt(ConnectionType.EXTRA_TCP_SERVER_PORT, 5760);
-        extraParams.putInt(ConnectionType.EXTRA_TCP_SERVER_IP, 14550); // Set default port to 14550
+        extraParams.putInt(ConnectionType.EXTRA_UDP_SERVER_PORT, udpPort); // Set default port to 14550
 
         ConnectionParameter connectionParams = new ConnectionParameter(ConnectionType.TYPE_UDP, extraParams, null);
         this.drone.connect(connectionParams);
@@ -64,7 +62,6 @@ public class DroneApplication extends Application implements DroneListener, Towe
         Log.i("DRONE", "Tower connected");
         this.controlTower.registerDrone(this.drone, this.handler);
         this.drone.registerDroneListener(this);
-        connectToDrone();
     }
 
     @Override
@@ -85,7 +82,9 @@ public class DroneApplication extends Application implements DroneListener, Towe
                 Log.i("DRONE", "Drone connected");
                 Toast.makeText(this, "Drone connected", Toast.LENGTH_SHORT).show();
                 LatLong location = new DroneHelper(this).getLocation();
-                Log.i("DRONE", String.valueOf(location.getLatitude()));
+                if (location != null) {
+                    Log.i("DRONE", String.valueOf(location.getLatitude()));
+                }
                 break;
 
             case AttributeEvent.STATE_DISCONNECTED:

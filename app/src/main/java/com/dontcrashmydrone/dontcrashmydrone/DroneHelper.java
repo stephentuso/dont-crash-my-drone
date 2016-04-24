@@ -30,6 +30,10 @@ import java.util.Set;
  */
 public class DroneHelper {
 
+    public static final int DEFAULT_UDP_PORT = 14550;
+
+    private static final String TAG = DroneApplication.class.getSimpleName();
+
     private DroneApplication droneApp;
 
     public DroneHelper(Context context) {
@@ -50,12 +54,34 @@ public class DroneHelper {
     }
 
     public DroneHelper(Activity activity) {
+
         Application app  = activity.getApplication();
         if (app instanceof DroneApplication) {
             droneApp = (DroneApplication) app;
         } else {
             throw new IllegalStateException("Application not instance of DroneApplication");
         }
+    }
+
+    public void connectToDrone() {
+        connectToDrone(DEFAULT_UDP_PORT);
+    }
+
+    public void connectToDrone(int port) {
+        if (isConnected()) {
+            Log.i(TAG, "Already connected to a drone");
+            Toast.makeText(droneApp, "Already connected to a drone", Toast.LENGTH_LONG).show();
+            return;
+        }
+        droneApp.connectToDrone(port);
+    }
+
+    public void disconnectFromDrone() {
+        droneApp.getDrone().disconnect();
+    }
+
+    public boolean isConnected() {
+        return droneApp.getDrone().isConnected();
     }
 
     public @Nullable LatLong getLocation() {
