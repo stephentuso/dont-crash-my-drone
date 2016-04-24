@@ -24,8 +24,8 @@ public class MainActivity extends AppCompatActivity {
         mStartButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //Intent intent = new Intent(MainActivity.this, WeatherActivity.class);
-                //startActivity(intent);
+                //This activity is started from StartFlightActivity now, all we need to do is close it
+                //TODO: Save in sharedPrefs that the user has completed this (and then check that in StartFlightActivity)
                 finish();
             }
         });
