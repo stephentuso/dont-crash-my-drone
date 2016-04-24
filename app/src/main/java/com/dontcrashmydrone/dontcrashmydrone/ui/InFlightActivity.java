@@ -37,6 +37,7 @@ public class InFlightActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 droneHelper.disconnectFromDrone();
+                finish();
             }
         });
 
