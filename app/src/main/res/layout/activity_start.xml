@@ -140,7 +140,7 @@
             android:layout_height="wrap_content"
             android:id="@+id/refreshImageView"
             android:gravity="center_horizontal"
-            android:src="@drawable/ic_update_black_24dp"
+            android:src="@drawable/refresh"
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"/>
 
