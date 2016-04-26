@@ -2,14 +2,11 @@ package com.dontcrashmydrone.dontcrashmydrone.ui;
 
 import android.Manifest;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.location.Address;
 import android.location.Location;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -30,19 +27,9 @@ import com.dontcrashmydrone.dontcrashmydrone.NotificationReceiver;
 import com.dontcrashmydrone.dontcrashmydrone.NotificationService;
 import com.dontcrashmydrone.dontcrashmydrone.R;
 import com.dontcrashmydrone.dontcrashmydrone.util.LocationHelper;
-import com.dontcrashmydrone.dontcrashmydrone.weather.Current;
-import com.dontcrashmydrone.dontcrashmydrone.weather.Forecast;
+import com.dontcrashmydrone.dontcrashmydrone.util.WeatherHelper;
+import com.dontcrashmydrone.dontcrashmydrone.weather.WeatherConditions;
 import com.o3dr.services.android.lib.drone.connection.ConnectionResult;
-import com.squareup.okhttp.Call;
-import com.squareup.okhttp.Callback;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -58,7 +45,8 @@ public class StartFlightActivity extends AppCompatActivity {
 
     private boolean loginStarted = false;
 
-    private LocationHelper mLocationHelper;
+    private LocationHelper locationHelper;
+    private WeatherHelper weatherHelper;
 
     public Location currentLocation;
 
@@ -67,16 +55,14 @@ public class StartFlightActivity extends AppCompatActivity {
 
     EditText udpPortField;
 
-    private Forecast mForecast;
-
-    @Bind(R.id.timeLabel) TextView mTimeLabel;
-    @Bind(R.id.temperatureLabel) TextView mTemperatureLabel;
-    @Bind(R.id.humidityValue) TextView mHumidityValue;
-    @Bind(R.id.precipValue) TextView mPrecipValue;
+    @Bind(R.id.timeLabel) TextView weatherTimeLabel;
+    @Bind(R.id.temperatureLabel) TextView weatherTempLabel;
+    @Bind(R.id.humidityValue) TextView weatherHumidityLabel;
+    @Bind(R.id.precipValue) TextView weatherPrecipLabel;
     @Bind(R.id.summaryLabel) TextView mSummaryLabel;
-    @Bind(R.id.refreshImageView) ImageView mRefreshImageView;
-    @Bind(R.id.progressBar) ProgressBar mProgressBar;
-    @Bind(R.id.locationLabel) TextView mLocationAddressValue;
+    @Bind(R.id.refreshImageView) ImageView weatherRefreshButton;
+    @Bind(R.id.progressBar) ProgressBar weatherProgressBar;
+    @Bind(R.id.locationLabel) TextView weatherLocationLabel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,16 +70,17 @@ public class StartFlightActivity extends AppCompatActivity {
         setContentView(R.layout.activity_start);
         ButterKnife.bind(this);
 
-        mLocationHelper = new LocationHelper(this);
+        locationHelper = new LocationHelper(this);
+        weatherHelper = new WeatherHelper(this);
 
-        mProgressBar.setVisibility(View.INVISIBLE);
+        weatherProgressBar.setVisibility(View.INVISIBLE);
 
         refreshWeather();
 
         //final double latitude = 32.8267;
         //final double longitude = -122.423;
 
-        mRefreshImageView.setOnClickListener(new View.OnClickListener() {
+        weatherRefreshButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 refreshWeather();
@@ -116,7 +103,7 @@ public class StartFlightActivity extends AppCompatActivity {
             startActivity(loginIntent);
         }
 
-        if (!mLocationHelper.permissionsGranted())
+        if (!locationHelper.permissionsGranted())
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1234);
 
         //Start button
@@ -127,6 +114,8 @@ public class StartFlightActivity extends AppCompatActivity {
             }
         });
 
+
+        //TODO: Figure out the right way to use services and receivers for this
         IntentFilter filter = new IntentFilter(NotificationReceiver.RECEIVER_ACTION);
         filter.addCategory(Intent.CATEGORY_DEFAULT);
         receiver = new NotificationReceiver();
@@ -170,25 +159,48 @@ public class StartFlightActivity extends AppCompatActivity {
                 setLoading(true);
             }
         });
-        mLocationHelper.getLocation(new LocationHelper.LocationCallback() {
+        locationHelper.getLocation(new LocationHelper.LocationCallback() {
             @Override
             public void onSuccess(final Location location) {
                 currentLocation = location;
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        getForecast(location.getLatitude(), location.getLongitude());
+                        weatherHelper.getForecast(location.getLatitude(), location.getLongitude(), new WeatherHelper.WeatherCallback() {
+                            @Override
+                            public void onSuccess(final WeatherConditions conditions) {
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        setLoading(false);
+                                        displayWeatherConditions(conditions);
+                                    }
+                                });
+                            }
+
+                            @Override
+                            public void onError(final Error error) {
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        setLoading(false);
+                                        displayWeatherError(error);
+                                    }
+                                });
+                            }
+                        });
                     }
                 });
             }
 
             @Override
-            public void onError(Error error) {
+            public void onError(final Error error) {
                 Log.w(TAG, error);
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         setLoading(false);
+                        displayWeatherError(error);
                     }
                 });
             }
@@ -262,130 +274,32 @@ public class StartFlightActivity extends AppCompatActivity {
         unregisterReceiver(receiver);
     }
 
-    private void getForecast(double latitude, double longitude) {
-        String apiKey = "e7220de7fb16ee318ac979fd820daf74";
-        String forecastUrl = "https://api.forecast.io/forecast/" + apiKey + "/" + latitude + "," + longitude;
-
-
-        if (isNetworkAvailable()) {
-
-            OkHttpClient client = new OkHttpClient();
-            Request request = new Request.Builder().url(forecastUrl).build();
-
-            Call call = client.newCall(request);
-            call.enqueue(new Callback() {
-                @Override
-                public void onFailure(Request request, IOException e) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            setLoading(false);
-                        }
-                    });
-                    alertUserAboutError();
-                }
-
-                @Override
-                public void onResponse(Response response) throws IOException {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            setLoading(false);
-                        }
-                    });
-                    try {
-                        String jsonData = response.body().string();
-                        Log.v(TAG, jsonData);
-                        if (response.isSuccessful()) {
-                            mForecast = parseForecastDetails(jsonData);
-                            // It is mandatory to run this on the UI thread
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    updateDisplay();
-                                }
-                            });
-                        } else {
-                            alertUserAboutError();
-                        }
-                    } catch (IOException e) {
-                        Log.e(TAG, "Exception caught: ", e);
-                    } catch (JSONException e) {
-                        Log.e(TAG, "Exception caught: ", e);
-                    }
-                }
-            });
-        } else {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    setLoading(false);
-                }
-            });
-            alertUserAboutError();
-            // Toast.makeText(this, R.string.network_unavailable_message, Toast.LENGTH_LONG).show();
-        }
-    }
-
     private void setLoading(boolean loading) {
         if (loading) {
-            mProgressBar.setVisibility(View.VISIBLE);
-            mRefreshImageView.setVisibility(View.INVISIBLE);
+            weatherProgressBar.setVisibility(View.VISIBLE);
+            weatherRefreshButton.setVisibility(View.INVISIBLE);
         } else {
-            mProgressBar.setVisibility(View.INVISIBLE);
-            mRefreshImageView.setVisibility(View.VISIBLE);
+            weatherProgressBar.setVisibility(View.INVISIBLE);
+            weatherRefreshButton.setVisibility(View.VISIBLE);
         }
     }
 
-    private void updateDisplay() {
-        if (mLocationHelper.getAddress(currentLocation) != null) {
-            Address address = mLocationHelper.getAddress(currentLocation);
-            mLocationAddressValue.setText(address.getLocality() + ", " + address.getAdminArea());
+    private void displayWeatherConditions(WeatherConditions conditions) {
+        if (locationHelper.getAddress(currentLocation) != null) {
+            //TODO: Make this async, it takes a long time and causes frame skips
+            Address address = locationHelper.getAddress(currentLocation);
+            weatherLocationLabel.setText(address.getLocality() + ", " + address.getAdminArea());
         }
-        mTemperatureLabel.setText(mForecast.getCurrent().getTemperature() + "");
-        mTimeLabel.setText("At " + mForecast.getCurrent().getFormattedTime() + " it will be");
-        mHumidityValue.setText(mForecast.getCurrent().getHumidity() + "");
-        mPrecipValue.setText(mForecast.getCurrent().getPrecipChance() + "%");
-        mSummaryLabel.setText(mForecast.getCurrent().getSummary());
-    }
-    private Forecast parseForecastDetails(String jsonData) throws JSONException{
-        Forecast forecast = new Forecast();
-        forecast.setCurrent(getCurrentDetails(jsonData));
-        return forecast;
+
+        weatherTempLabel.setText(conditions.getTemperature() + "");
+        weatherTimeLabel.setText("Last updated at " + conditions.getFormattedTime());
+        weatherHumidityLabel.setText(conditions.getHumidity() + "");
+        weatherPrecipLabel.setText(conditions.getPrecipChance() + "%");
+        mSummaryLabel.setText(conditions.getSummary());
     }
 
-    private Current getCurrentDetails(String jsonData) throws JSONException {
-        JSONObject forecast = new JSONObject(jsonData);
-        String timezone = forecast.getString("timezone");
-        JSONObject currently = forecast.getJSONObject("currently");
-        Log.i(TAG, "From JSON: " + timezone);
-        String locationAddress = "Medina, WA";
-        Current current = new Current();
-
-        current.setHumidity(currently.getDouble("humidity"));
-        current.setTime(currently.getLong("time"));
-        current.setPrecipChance(currently.getDouble("precipProbability"));
-        current.setSummary(currently.getString("summary"));
-        current.setTemperature(currently.getDouble("temperature"));
-        current.setLocationAddress(locationAddress + "");
-        current.setTimeZone(timezone);
-
-        Log.d(TAG, current.getFormattedTime());
-        return current;
-    }
-
-    private boolean isNetworkAvailable() {
-        ConnectivityManager manager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = manager.getActiveNetworkInfo();
-        boolean isAvailable = false;
-        if (networkInfo != null && networkInfo.isConnected()){
-            isAvailable = true;
-        }
-        return isAvailable;
-    }
-
-    private void alertUserAboutError() {
-
+    private void displayWeatherError(Error error) {
+        //TODO
     }
 
     @Override

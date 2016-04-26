@@ -2,17 +2,18 @@ package com.dontcrashmydrone.dontcrashmydrone.weather;
 
 /**
  * Created by sunny on 4/23/16.
+ * Not currently used anywhere, may be added
  */
 
 public class Forecast {
 
-    private Current mCurrent;
+    private WeatherConditions mCurrent;
 
-    public Current getCurrent() {
+    public WeatherConditions getCurrent() {
         return mCurrent;
     }
 
-    public void setCurrent(Current current) {
+    public void setCurrent(WeatherConditions current) {
         mCurrent = current;
     }
 }

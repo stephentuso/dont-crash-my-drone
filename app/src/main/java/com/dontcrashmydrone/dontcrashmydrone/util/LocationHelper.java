@@ -92,6 +92,10 @@ public class LocationHelper {
     }
 
     public @Nullable Address getAddress(Location location) {
+        return getAddress(context, location);
+    }
+
+    public static @Nullable Address getAddress(Context context, Location location) {
         if (location == null)
             return null;
 
