@@ -34,10 +34,13 @@ public class WeatherConditions {
             conditions.addWarning("Wind speed may be too high");
         }
 
-        if (precipChance != null && precipChance >= 80) {
+        if (precipChance != null && precipChance >= 0.85) {
+            conditions.incrementConditionIntBy(4);
+            conditions.addWarning("Very high chance of rain");
+        } else if (precipChance != null && precipChance > 0.7) {
             conditions.incrementConditionIntBy(2);
             conditions.addWarning("High chance of rain");
-        } else if (precipChance != null && precipChance > 50) {
+        } else if (precipChance != null && precipChance > 0.5) {
             conditions.incrementConditionIntBy(1);
             conditions.addWarning("Chance of rain");
         }

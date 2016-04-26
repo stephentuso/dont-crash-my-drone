@@ -353,7 +353,7 @@ public class StartFlightActivity extends AppCompatActivity {
                 drawableId = R.drawable.ic_check_black_24dp;
                 break;
             case FlyingConditions.CONDITION_MEDIUM:
-                flyingString = "Mediocre flying conditions";
+                flyingString = "Questionable flying conditions";
                 drawableId = R.drawable.ic_warning_amber_24dp;
                 break;
             case FlyingConditions.CONDITION_POOR:
