@@ -64,7 +64,6 @@ public class LocationCheckingService extends IntentService {
                     Polygon.Builder builder = Polygon.Builder();
 
                     for(int i = 0; i < resp.getCoordinates().size(); i++) {
-                        Log.e("TAg", resp.getCoordinates().get(i).getLatitude() + ", " + resp.getCoordinates().get(i).getLongitude());
 
                         builder.addVertex(
                                         new Point((float)resp.getCoordinates().get(i).getLatitude(),
@@ -103,9 +102,12 @@ public class LocationCheckingService extends IntentService {
                         title = "WARNING: IN NO FLY ZONE";
                     }*/
 
+                    int drawable = R.drawable.ic_check_white_24dp;
+
                     if (location.getLatitude() < 37.8727) {
                         title = "WARNING: IN NO FLY ZONE";
                         mVibrator.vibrate(2000);
+                        drawable = R.drawable.ic_warning_white_24dp;
                     }
 
                     Log.i("CHECKING", location.getLatitude() + ", " + location.getLatitude());
@@ -114,7 +116,7 @@ public class LocationCheckingService extends IntentService {
                     broadcastManager.sendBroadcast(intent);
                     NotificationCompat.Builder builder = new NotificationCompat.Builder(LocationCheckingService.this)
                             .setContentTitle(title)
-                            .setSmallIcon(R.mipmap.ic_launcher);
+                            .setSmallIcon(drawable);
 
                     NotificationManager mNotificationManager =
                             (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);

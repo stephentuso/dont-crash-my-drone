@@ -1,14 +1,18 @@
 package com.dontcrashmydrone.dontcrashmydrone.ui;
 
+import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.location.Address;
 import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -56,7 +60,7 @@ public class StartFlightActivity extends AppCompatActivity {
 
     private LocationHelper mLocationHelper;
 
-    public String mGlobalLocation;
+    public Location currentLocation;
 
     private NotificationReceiver receiver;
     DroneHelper droneHelper;
@@ -84,17 +88,7 @@ public class StartFlightActivity extends AppCompatActivity {
 
         mProgressBar.setVisibility(View.INVISIBLE);
 
-        mLocationHelper.getLocation(new LocationHelper.LocationCallback() {
-            @Override
-            public void success(Location location) {
-                getForecast(location.getLatitude(), location.getLongitude());
-            }
-
-            @Override
-            public void error() {
-
-            }
-        });
+        refreshWeather();
 
         //final double latitude = 32.8267;
         //final double longitude = -122.423;
@@ -102,18 +96,7 @@ public class StartFlightActivity extends AppCompatActivity {
         mRefreshImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mLocationHelper.getLocation(new LocationHelper.LocationCallback() {
-                    @Override
-                    public void success(Location location) {
-                        mGlobalLocation = mLocationHelper.getAddress(location) + "";
-                        getForecast(location.getLatitude(), location.getLongitude());
-                    }
-
-                    @Override
-                    public void error() {
-
-                    }
-                });
+                refreshWeather();
             }
         });
 
@@ -132,6 +115,9 @@ public class StartFlightActivity extends AppCompatActivity {
             Intent loginIntent = new Intent(this, MainActivity.class);
             startActivity(loginIntent);
         }
+
+        if (!mLocationHelper.permissionsGranted())
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1234);
 
         //Start button
         findViewById(R.id.button_start).setOnClickListener(new View.OnClickListener() {
@@ -175,6 +161,38 @@ public class StartFlightActivity extends AppCompatActivity {
     // Method to stop the service
     public void stopService(View view) {
         stopService(new Intent(getBaseContext(), NotificationService.class));
+    }
+
+    private void refreshWeather() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                setLoading(true);
+            }
+        });
+        mLocationHelper.getLocation(new LocationHelper.LocationCallback() {
+            @Override
+            public void onSuccess(final Location location) {
+                currentLocation = location;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        getForecast(location.getLatitude(), location.getLongitude());
+                    }
+                });
+            }
+
+            @Override
+            public void onError(Error error) {
+                Log.w(TAG, error);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        setLoading(false);
+                    }
+                });
+            }
+        }, 10000);
     }
 
     private void onStartButtonClick() {
@@ -244,17 +262,12 @@ public class StartFlightActivity extends AppCompatActivity {
         unregisterReceiver(receiver);
     }
 
-    private String getAddressLocation() {
-        return mGlobalLocation;
-    }
-
     private void getForecast(double latitude, double longitude) {
         String apiKey = "e7220de7fb16ee318ac979fd820daf74";
         String forecastUrl = "https://api.forecast.io/forecast/" + apiKey + "/" + latitude + "," + longitude;
 
 
         if (isNetworkAvailable()) {
-            toggleRefresh();
 
             OkHttpClient client = new OkHttpClient();
             Request request = new Request.Builder().url(forecastUrl).build();
@@ -266,7 +279,7 @@ public class StartFlightActivity extends AppCompatActivity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            toggleRefresh();
+                            setLoading(false);
                         }
                     });
                     alertUserAboutError();
@@ -277,7 +290,7 @@ public class StartFlightActivity extends AppCompatActivity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            toggleRefresh();
+                            setLoading(false);
                         }
                     });
                     try {
@@ -303,13 +316,19 @@ public class StartFlightActivity extends AppCompatActivity {
                 }
             });
         } else {
-            alertUserAboutNoNetworkError();
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    setLoading(false);
+                }
+            });
+            alertUserAboutError();
             // Toast.makeText(this, R.string.network_unavailable_message, Toast.LENGTH_LONG).show();
         }
     }
 
-    private void toggleRefresh() {
-        if (mProgressBar.getVisibility() == View.INVISIBLE) {
+    private void setLoading(boolean loading) {
+        if (loading) {
             mProgressBar.setVisibility(View.VISIBLE);
             mRefreshImageView.setVisibility(View.INVISIBLE);
         } else {
@@ -319,10 +338,13 @@ public class StartFlightActivity extends AppCompatActivity {
     }
 
     private void updateDisplay() {
+        if (mLocationHelper.getAddress(currentLocation) != null) {
+            Address address = mLocationHelper.getAddress(currentLocation);
+            mLocationAddressValue.setText(address.getLocality() + ", " + address.getAdminArea());
+        }
         mTemperatureLabel.setText(mForecast.getCurrent().getTemperature() + "");
         mTimeLabel.setText("At " + mForecast.getCurrent().getFormattedTime() + " it will be");
         mHumidityValue.setText(mForecast.getCurrent().getHumidity() + "");
-        mLocationAddressValue.setText(mForecast.getCurrent().getLocationAddress() + "");
         mPrecipValue.setText(mForecast.getCurrent().getPrecipChance() + "%");
         mSummaryLabel.setText(mForecast.getCurrent().getSummary());
     }
@@ -337,7 +359,7 @@ public class StartFlightActivity extends AppCompatActivity {
         String timezone = forecast.getString("timezone");
         JSONObject currently = forecast.getJSONObject("currently");
         Log.i(TAG, "From JSON: " + timezone);
-        String LocationAddress = "Medina, WA";
+        String locationAddress = "Medina, WA";
         Current current = new Current();
 
         current.setHumidity(currently.getDouble("humidity"));
@@ -345,7 +367,7 @@ public class StartFlightActivity extends AppCompatActivity {
         current.setPrecipChance(currently.getDouble("precipProbability"));
         current.setSummary(currently.getString("summary"));
         current.setTemperature(currently.getDouble("temperature"));
-        current.setLocationAddress(LocationAddress + "");
+        current.setLocationAddress(locationAddress + "");
         current.setTimeZone(timezone);
 
         Log.d(TAG, current.getFormattedTime());
@@ -366,7 +388,10 @@ public class StartFlightActivity extends AppCompatActivity {
 
     }
 
-    private void alertUserAboutNoNetworkError() {
-
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        refreshWeather();
     }
+
 }

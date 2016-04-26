@@ -17,10 +17,7 @@ public class NoFlyRetrofitHelper {
     private Retrofit mRetrofit;
 
     public NoFlyRetrofitHelper() {
-        //logger
-        HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
-        interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-        OkHttpClient httpClient = new OkHttpClient.Builder().addInterceptor(interceptor).build();
+        OkHttpClient httpClient = new OkHttpClient.Builder().build();
 
         mRetrofit = new Retrofit.Builder()
                 .baseUrl(BASE_URL)
