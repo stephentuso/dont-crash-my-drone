@@ -10,7 +10,6 @@ public class FlyingConditions {
 
     private List<String> warnings = new ArrayList<>();
     private int conditionInt = 0;
-    private String conditionDescription = null;
 
     public static final int CONDITION_GOOD = 0;
     public static final int CONDITION_MEDIUM = 1;

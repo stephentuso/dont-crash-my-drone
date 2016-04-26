@@ -1,179 +1,208 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
               android:orientation="vertical"
               android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:paddingRight="@dimen/activity_horizontal_margin"
-              android:paddingLeft="@dimen/activity_horizontal_margin"
-              android:paddingTop="@dimen/activity_vertical_margin"
-              android:paddingBottom="@dimen/activity_vertical_margin"
-              android:background="@drawable/back_gradient">
+              android:layout_height="match_parent">
 
-    <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1">
+    <android.support.v7.widget.CardView
+        style="@style/HomeCardView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardElevation="2dp"
+        app:cardCornerRadius="2dp">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="--"
-            android:id="@+id/temperatureLabel"
-            android:layout_centerVertical="true"
-            android:layout_centerHorizontal="true"
-            android:textColor="@android:color/white"
-            android:textSize="150sp"/>
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/degreeImageView"
-            android:src="@drawable/degree"
-            android:layout_marginTop="39dp"
-            android:layout_alignTop="@+id/temperatureLabel"
-            android:layout_toEndOf="@+id/temperatureLabel"
-            android:layout_toRightOf="@+id/temperatureLabel"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="..."
-            android:id="@+id/timeLabel"
-            android:layout_above="@+id/degreeImageView"
-            android:layout_centerHorizontal="true"
-            android:textColor="#80ffffff"
-            android:textSize="18sp"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Medina, WA"
-            android:id="@+id/locationLabel"
-            android:layout_above="@+id/timeLabel"
-            android:layout_centerHorizontal="true"
-            android:layout_marginBottom="60dp"
-            android:textColor="@android:color/white"
-            android:textSize="24sp"/>
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/iconImageView"
-            android:layout_alignBottom="@+id/locationLabel"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:src="@drawable/cloudy_night"/>
-
-        <LinearLayout
-            android:orientation="horizontal"
+        <TableLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/temperatureLabel"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="10dp"
-            android:weightSum="100"
-            android:id="@+id/linearLayout">
+            android:paddingTop="@dimen/card_vertical_padding"
+            android:paddingLeft="@dimen/card_horizontal_padding"
+            android:paddingRight="@dimen/card_horizontal_padding"
+            android:paddingBottom="@dimen/card_bottom_padding_buttons">
+
+            <TextView
+                style="@style/CardTitle"
+                android:layout_width="wrap_content"
+                android:text="Connect to drone"/>
+
+            <TextView
+                android:text="Ready to begin tracking"/>
+
+            <TableRow
+                android:layout_marginTop="@dimen/card_bottom_padding_buttons">
+
+                <Button
+                    android:id="@+id/button_options"
+                    style="@style/Widget.AppCompat.Button.Borderless"
+                    android:text="Options"/>
+
+                <!-- Spacer -->
+                <View
+                    android:layout_weight="1"
+                    android:layout_height="0dp"
+                    android:layout_width="0dp"/>
+
+                <Button
+                    android:id="@+id/button_start"
+                    style="@style/Widget.AppCompat.Button.Colored"
+                    android:text="Connect"/>
+
+            </TableRow>
+
+        </TableLayout>
+
+    </android.support.v7.widget.CardView>
+
+    <android.support.v7.widget.CardView
+        style="@style/HomeCardView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="@dimen/card_vertical_padding"
+            android:paddingLeft="@dimen/card_horizontal_padding"
+            android:paddingRight="@dimen/card_horizontal_padding"
+            android:paddingBottom="@dimen/card_vertical_padding">
 
             <LinearLayout
-                android:orientation="vertical"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_weight="50">
+                android:id="@+id/layout_weather"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
 
-                <TextView
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="HUMIDITY"
-                    android:id="@+id/humidityLabel"
-                    android:textColor="#80ffffff"
-                    android:gravity="center_horizontal"/>
+                    android:orientation="horizontal">
 
-                <TextView
+                    <TextView
+                        android:id="@+id/locationLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        style="@style/CardTitle"
+                        android:text="Weather"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/timeLabel"
+                        android:textSize="12sp"
+                        android:text="test"/>
+
+                    <!-- Spacer -->
+                    <View
+                        android:layout_weight="1"
+                        android:layout_height="0dp"
+                        android:layout_width="0dp"/>
+
+                    <ImageView
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content"
+                        android:id="@+id/refreshImageView"
+                        android:src="@drawable/ic_refresh_grey600_24dp"/>
+
+                </LinearLayout>
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="--"
-                    android:id="@+id/humidityValue"
-                    android:textColor="@android:color/white"
-                    android:textSize="24sp"
-                    android:gravity="center_horizontal"/>
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:id="@+id/image_flying_conditions"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_check_black_24dp"
+                        android:paddingRight="8dp"/>
+
+                    <TextView
+                        android:id="@+id/label_flying_conditions"
+                        style="@style/CardText"
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content"
+                        android:textColor="#000"
+                        android:textSize="16sp"
+                        android:text="Good flying conditions"/>
+
+                </LinearLayout>
+
+
+
+                <LinearLayout
+                    android:id="@+id/layout_warnings"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="8dp">
+
+                    <!-- Warnings will be dynamically added here -->
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/temperatureLabel"
+                        style="@style/CardText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="18sp"/>
+
+                    <TextView
+                        android:id="@+id/summaryLabel"
+                        style="@style/CardText"
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/CardText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Precipitation:"/>
+
+                    <TextView
+                        android:id="@+id/precipValue"
+                        style="@style/CardText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="16sp"/>
+
+                    <TextView
+                        style="@style/CardText"
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content"
+                        android:text="Wind:"/>
+
+                    <TextView
+                        android:id="@+id/label_wind"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="16sp"/>
+
+                </LinearLayout>
+
             </LinearLayout>
 
-            <LinearLayout
-                android:orientation="vertical"
+            <ProgressBar
+                android:id="@+id/progressBar"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_weight="50">
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"/>
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="RAIN/SNOW?"
-                    android:id="@+id/precipLabel"
-                    android:textColor="#80ffffff"
-                    android:gravity="center_horizontal"/>
+        </FrameLayout>
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="--"
-                    android:id="@+id/precipValue"
-                    android:textColor="#ffffff"
-                    android:textSize="24sp"
-                    android:gravity="center_horizontal"/>
-            </LinearLayout>
-        </LinearLayout>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Getting current weather data..."
-            android:id="@+id/summaryLabel"
-            android:layout_below="@+id/linearLayout"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="40dp"
-            android:textColor="#ffffff"
-            android:textSize="18dp"
-            android:gravity="center_horizontal"/>
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/refreshImageView"
-            android:gravity="center_horizontal"
-            android:src="@drawable/refresh"
-            android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true"/>
-
-        <ProgressBar
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/progressBar"
-            android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true"
-            android:layout_alignBottom="@+id/refreshImageView"/>
-
-    </RelativeLayout>
-
-    <EditText
-        android:id="@+id/edit_text_udp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:inputType="number"
-        android:hint="UDP Port"/>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
-        android:text="If left blank, 14550 will be used"/>
-
-    <Button
-        style="@style/Widget.AppCompat.Button.Colored"
-        android:id="@+id/button_start"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Start"
-        android:layout_gravity="center"/>
+    </android.support.v7.widget.CardView>
 
 </LinearLayout>

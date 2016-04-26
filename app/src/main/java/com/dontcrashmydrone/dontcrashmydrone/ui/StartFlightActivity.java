@@ -10,12 +10,16 @@ import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -28,8 +32,11 @@ import com.dontcrashmydrone.dontcrashmydrone.NotificationService;
 import com.dontcrashmydrone.dontcrashmydrone.R;
 import com.dontcrashmydrone.dontcrashmydrone.util.LocationHelper;
 import com.dontcrashmydrone.dontcrashmydrone.util.WeatherHelper;
+import com.dontcrashmydrone.dontcrashmydrone.weather.FlyingConditions;
 import com.dontcrashmydrone.dontcrashmydrone.weather.WeatherConditions;
 import com.o3dr.services.android.lib.drone.connection.ConnectionResult;
+
+import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -53,16 +60,22 @@ public class StartFlightActivity extends AppCompatActivity {
     private NotificationReceiver receiver;
     DroneHelper droneHelper;
 
-    EditText udpPortField;
+    private String udpPort = "14550";
 
+    @Bind(R.id.layout_weather) ViewGroup weatherLayout;
+    @Bind(R.id.label_flying_conditions) TextView flyingConditionsLabel;
+    @Bind(R.id.image_flying_conditions) ImageView flyingConditionsImage;
+    @Bind(R.id.layout_warnings) LinearLayout warningsLayout;
     @Bind(R.id.timeLabel) TextView weatherTimeLabel;
     @Bind(R.id.temperatureLabel) TextView weatherTempLabel;
-    @Bind(R.id.humidityValue) TextView weatherHumidityLabel;
+    //@Bind(R.id.humidityValue) TextView weatherHumidityLabel;
     @Bind(R.id.precipValue) TextView weatherPrecipLabel;
     @Bind(R.id.summaryLabel) TextView mSummaryLabel;
     @Bind(R.id.refreshImageView) ImageView weatherRefreshButton;
     @Bind(R.id.progressBar) ProgressBar weatherProgressBar;
     @Bind(R.id.locationLabel) TextView weatherLocationLabel;
+    @Bind(R.id.label_wind) TextView weatherWindLabel;
+    @Bind(R.id.button_options) Button optionsButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,7 +101,6 @@ public class StartFlightActivity extends AppCompatActivity {
         });
 
         droneHelper = new DroneHelper(this);
-        udpPortField = (EditText) findViewById(R.id.edit_text_udp) ;
 
         if (savedInstanceState != null) {
             loginStarted = savedInstanceState.getBoolean(KEY_LOGIN_ACTIVITY_STARTED, false);
@@ -105,6 +117,13 @@ public class StartFlightActivity extends AppCompatActivity {
 
         if (!locationHelper.permissionsGranted())
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1234);
+
+        optionsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showOptionsDialog();
+            }
+        });
 
         //Start button
         findViewById(R.id.button_start).setOnClickListener(new View.OnClickListener() {
@@ -208,7 +227,7 @@ public class StartFlightActivity extends AppCompatActivity {
     }
 
     private void onStartButtonClick() {
-        String input = udpPortField.getText().toString();
+        String input = "14550";
 
         //Ensure input is valid int
         int port = -1;
@@ -274,28 +293,93 @@ public class StartFlightActivity extends AppCompatActivity {
         unregisterReceiver(receiver);
     }
 
+    private void showOptionsDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Connection Options");
+
+        LinearLayout layout = new LinearLayout(this);
+        layout.setOrientation(LinearLayout.VERTICAL);
+
+        TextView textView  = new TextView(this);
+        textView.setText("UDP Port");
+        layout.addView(textView);
+
+        final EditText input = new EditText(this);
+        input.setText(udpPort);
+        layout.addView(input);
+
+        builder.setView(layout);
+
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                udpPort = input.getText().toString();
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        builder.show();
+    }
+
     private void setLoading(boolean loading) {
         if (loading) {
             weatherProgressBar.setVisibility(View.VISIBLE);
-            weatherRefreshButton.setVisibility(View.INVISIBLE);
+            weatherLayout.setVisibility(View.INVISIBLE);
         } else {
             weatherProgressBar.setVisibility(View.INVISIBLE);
-            weatherRefreshButton.setVisibility(View.VISIBLE);
+            weatherLayout.setVisibility(View.VISIBLE);
         }
     }
 
     private void displayWeatherConditions(WeatherConditions conditions) {
-        if (locationHelper.getAddress(currentLocation) != null) {
+        Address address = locationHelper.getAddress(currentLocation);
+        if (address != null) {
             //TODO: Make this async, it takes a long time and causes frame skips
-            Address address = locationHelper.getAddress(currentLocation);
             weatherLocationLabel.setText(address.getLocality() + ", " + address.getAdminArea());
         }
 
-        weatherTempLabel.setText(conditions.getTemperature() + "");
-        weatherTimeLabel.setText("Last updated at " + conditions.getFormattedTime());
-        weatherHumidityLabel.setText(conditions.getHumidity() + "");
+        FlyingConditions flyingConditions = conditions.getFlyingConditions();
+        String flyingString = "";
+        int drawableId = 0;
+
+        switch (flyingConditions.getConditionCode()) {
+            case FlyingConditions.CONDITION_GOOD:
+                flyingString = "Good flying conditions";
+                drawableId = R.drawable.ic_check_black_24dp;
+                break;
+            case FlyingConditions.CONDITION_MEDIUM:
+                flyingString = "Mediocre flying conditions";
+                drawableId = R.drawable.ic_warning_amber_24dp;
+                break;
+            case FlyingConditions.CONDITION_POOR:
+                flyingString = "Poor flying conditions";
+                drawableId = R.drawable.ic_error_red_24dp;
+                break;
+        }
+
+        flyingConditionsLabel.setText(flyingString);
+        flyingConditionsImage.setImageDrawable(getResources().getDrawable(drawableId));
+        displayFlyingWarnings(flyingConditions.getWarnings());
+
+        weatherTempLabel.setText(conditions.getTemperature() + "\u00b0");
+        weatherTimeLabel.setText("Updated " + conditions.getFormattedTime());
         weatherPrecipLabel.setText(conditions.getPrecipChance() + "%");
         mSummaryLabel.setText(conditions.getSummary());
+        weatherWindLabel.setText(conditions.getWindSpeed() + " mph");
+    }
+
+    private void displayFlyingWarnings(List<String> warnings) {
+        warningsLayout.removeAllViews();
+        for (String warning : warnings) {
+            TextView textView = new TextView(this, null, R.style.CardText);
+            textView.setText(warning);
+            warningsLayout.addView(textView);
+        }
     }
 
     private void displayWeatherError(Error error) {

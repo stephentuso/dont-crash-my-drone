@@ -24,14 +24,14 @@ public class WeatherConditions {
         if (temperature != null && temperature < 30) {
             conditions.incrementConditionIntBy(2);
             conditions.addWarning("Low temperature may cause issues");
-        } else if (temperature != null && temperature > 105) {
+        } else if (temperature != null && temperature > 95) {
             conditions.incrementConditionIntBy(2);
             conditions.addWarning("High temperature may cause issues");
         }
 
         if (windSpeed != null && windSpeed > 15) {
             conditions.incrementConditionIntBy(2);
-            conditions.addWarning("Winds may be too high");
+            conditions.addWarning("Wind speed may be too high");
         }
 
         if (precipChance != null && precipChance >= 80) {
@@ -110,7 +110,7 @@ public class WeatherConditions {
     }
 
     public String getFormattedTime() {
-        SimpleDateFormat formatter = new SimpleDateFormat("hh:mm a");
+        SimpleDateFormat formatter = new SimpleDateFormat("h:mm a");
         formatter.setTimeZone(TimeZone.getTimeZone(getTimeZone()));
         Date dateTime = new Date(getTime() * 1000);
         String timeString = formatter.format(dateTime);
