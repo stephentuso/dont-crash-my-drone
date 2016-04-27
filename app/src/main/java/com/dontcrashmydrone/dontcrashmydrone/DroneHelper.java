@@ -94,7 +94,7 @@ public class DroneHelper {
 
     public @Nullable LatLong getLocation() {
         Gps gps = droneApp.getDrone().getAttribute(AttributeType.GPS);
-        return gps.isValid() ? gps.getPosition() : null;
+        return gps != null && gps.isValid() ? gps.getPosition() : null;
     }
 
 }

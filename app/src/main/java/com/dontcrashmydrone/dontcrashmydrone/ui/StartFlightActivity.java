@@ -76,6 +76,9 @@ public class StartFlightActivity extends AppCompatActivity {
     @Bind(R.id.locationLabel) TextView weatherLocationLabel;
     @Bind(R.id.label_wind) TextView weatherWindLabel;
     @Bind(R.id.button_options) Button optionsButton;
+    @Bind(R.id.layout_weather_error) ViewGroup weatherErrorLayout;
+    @Bind(R.id.label_weather_error) TextView weatherErrorLabel;
+    @Bind(R.id.button_weather_error_retry) Button weatherErrorButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,12 +96,15 @@ public class StartFlightActivity extends AppCompatActivity {
         //final double latitude = 32.8267;
         //final double longitude = -122.423;
 
-        weatherRefreshButton.setOnClickListener(new View.OnClickListener() {
+        View.OnClickListener refreshListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 refreshWeather();
             }
-        });
+        };
+
+        weatherRefreshButton.setOnClickListener(refreshListener);
+        weatherErrorButton.setOnClickListener(refreshListener);
 
         droneHelper = new DroneHelper(this);
 
@@ -175,7 +181,7 @@ public class StartFlightActivity extends AppCompatActivity {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                setLoading(true);
+                setWeatherLoading(true);
             }
         });
         locationHelper.getLocation(new LocationHelper.LocationCallback() {
@@ -191,7 +197,7 @@ public class StartFlightActivity extends AppCompatActivity {
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        setLoading(false);
+                                        setWeatherLoading(false);
                                         displayWeatherConditions(conditions);
                                     }
                                 });
@@ -202,7 +208,7 @@ public class StartFlightActivity extends AppCompatActivity {
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        setLoading(false);
+                                        setWeatherLoading(false);
                                         displayWeatherError(error);
                                     }
                                 });
@@ -218,7 +224,7 @@ public class StartFlightActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        setLoading(false);
+                        setWeatherLoading(false);
                         displayWeatherError(error);
                     }
                 });
@@ -326,7 +332,7 @@ public class StartFlightActivity extends AppCompatActivity {
         builder.show();
     }
 
-    private void setLoading(boolean loading) {
+    private void setWeatherLoading(boolean loading) {
         if (loading) {
             weatherProgressBar.setVisibility(View.VISIBLE);
             weatherLayout.setVisibility(View.INVISIBLE);
@@ -334,6 +340,7 @@ public class StartFlightActivity extends AppCompatActivity {
             weatherProgressBar.setVisibility(View.INVISIBLE);
             weatherLayout.setVisibility(View.VISIBLE);
         }
+        weatherErrorLayout.setVisibility(View.INVISIBLE);
     }
 
     private void displayWeatherConditions(WeatherConditions conditions) {
@@ -383,7 +390,10 @@ public class StartFlightActivity extends AppCompatActivity {
     }
 
     private void displayWeatherError(Error error) {
-        //TODO
+        weatherErrorLabel.setText(error.getMessage());
+        weatherErrorLayout.setVisibility(View.VISIBLE);
+        weatherLayout.setVisibility(View.INVISIBLE);
+        weatherProgressBar.setVisibility(View.INVISIBLE);
     }
 
     @Override
