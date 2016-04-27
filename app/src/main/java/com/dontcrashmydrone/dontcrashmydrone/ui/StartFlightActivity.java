@@ -166,6 +166,8 @@ public class StartFlightActivity extends AppCompatActivity {
             }
         };
 
+        //Copy geojson from assets to internal storage so that if we decide to download json
+        // it can all be read from the same place
         FileUtils fileUtils = new FileUtils(this);
         File airportJson = fileUtils.getFile("json", "5_mile_airport.geojson");
         if (!airportJson.exists())

@@ -29,7 +29,10 @@ public class WeatherConditions {
             conditions.addWarning("High temperature may cause issues");
         }
 
-        if (windSpeed != null && windSpeed > 15) {
+        if (windSpeed != null && windSpeed > 25) {
+            conditions.incrementConditionIntBy(4);
+            conditions.addWarning("High wind speeds");
+        } else if (windSpeed != null && windSpeed > 12) {
             conditions.incrementConditionIntBy(2);
             conditions.addWarning("Wind speed may be too high");
         }
