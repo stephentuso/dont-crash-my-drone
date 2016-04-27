@@ -30,12 +30,14 @@ import com.dontcrashmydrone.dontcrashmydrone.LocationCheckingService;
 import com.dontcrashmydrone.dontcrashmydrone.NotificationReceiver;
 import com.dontcrashmydrone.dontcrashmydrone.NotificationService;
 import com.dontcrashmydrone.dontcrashmydrone.R;
+import com.dontcrashmydrone.dontcrashmydrone.util.FileUtils;
 import com.dontcrashmydrone.dontcrashmydrone.util.LocationHelper;
 import com.dontcrashmydrone.dontcrashmydrone.util.WeatherHelper;
 import com.dontcrashmydrone.dontcrashmydrone.weather.FlyingConditions;
 import com.dontcrashmydrone.dontcrashmydrone.weather.WeatherConditions;
 import com.o3dr.services.android.lib.drone.connection.ConnectionResult;
 
+import java.io.File;
 import java.util.List;
 
 import butterknife.Bind;
@@ -151,6 +153,27 @@ public class StartFlightActivity extends AppCompatActivity {
 
         Intent locationIntent = new Intent(this, LocationCheckingService.class);
         startService(locationIntent);
+
+        FileUtils.Callback callback = new FileUtils.Callback() {
+            @Override
+            public void onComplete() {
+                Log.i("FileUtils", "Copied file from assets");
+            }
+
+            @Override
+            public void onError() {
+                Log.i("FileUtils", "Error copying file");
+            }
+        };
+
+        FileUtils fileUtils = new FileUtils(this);
+        File airportJson = fileUtils.getFile("json", "5_mile_airport.geojson");
+        if (!airportJson.exists())
+            fileUtils.copyAssetToFile("5_mile_airport.geojson", airportJson, callback);
+
+        File militaryJson = fileUtils.getFile("json", "us_military.geojson");
+        if (militaryJson.exists())
+            fileUtils.copyAssetToFile("us_military.geojson", militaryJson, callback);
     }
 
     @Override
