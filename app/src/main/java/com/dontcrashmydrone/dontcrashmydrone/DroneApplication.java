@@ -109,7 +109,7 @@ public class DroneApplication extends Application implements DroneListener, Towe
                 break;
 
             case AttributeEvent.STATE_DISCONNECTED:
-                Log.i("DRONE", "Drone connected");
+                Log.i("DRONE", "Drone disconnected");
                 Toast.makeText(this, "Drone disconnected", Toast.LENGTH_SHORT).show();
                 break;
             case AttributeEvent.STATE_UPDATED:

@@ -38,7 +38,7 @@ public class FileUtils {
         return file;
     }
 
-    public void copyAssetToFile(String assetPath, File outputFile, @Nullable Callback callback) { //TODO: Make this async
+    public void copyAssetToFile(String assetPath, File outputFile, @Nullable Callback callback) {
         try {
             FileWriteTask task = new FileWriteTask(context.getAssets().open(assetPath), new FileOutputStream(outputFile), callback);
             task.execute();

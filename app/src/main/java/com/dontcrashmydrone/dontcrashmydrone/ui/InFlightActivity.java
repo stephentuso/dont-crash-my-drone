@@ -1,5 +1,6 @@
 package com.dontcrashmydrone.dontcrashmydrone.ui;
 
+import android.content.Intent;
 import android.os.Vibrator;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -9,6 +10,7 @@ import android.widget.Toast;
 
 import com.dontcrashmydrone.dontcrashmydrone.DroneConnectionStateListener;
 import com.dontcrashmydrone.dontcrashmydrone.DroneHelper;
+import com.dontcrashmydrone.dontcrashmydrone.LocationCheckingService;
 import com.dontcrashmydrone.dontcrashmydrone.R;
 import com.o3dr.android.client.interfaces.DroneListener;
 import com.o3dr.services.android.lib.coordinate.LatLong;
@@ -57,6 +59,11 @@ public class InFlightActivity extends AppCompatActivity {
 
         textLocation = (TextView) findViewById(R.id.text_location);
 
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
     }
 
     @Override

@@ -1,7 +1,9 @@
 package com.dontcrashmydrone.dontcrashmydrone.ui;
 
 import android.Manifest;
+import android.app.ActivityManager;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -148,12 +150,6 @@ public class StartFlightActivity extends AppCompatActivity {
         receiver = new NotificationReceiver();
         registerReceiver(receiver, filter);
 
-        Intent notificationIntent = new Intent(this, NotificationService.class);
-        startService(notificationIntent);
-
-        Intent locationIntent = new Intent(this, LocationCheckingService.class);
-        startService(locationIntent);
-
         FileUtils.Callback callback = new FileUtils.Callback() {
             @Override
             public void onComplete() {
@@ -170,11 +166,12 @@ public class StartFlightActivity extends AppCompatActivity {
         // it can all be read from the same place
         FileUtils fileUtils = new FileUtils(this);
         File airportJson = fileUtils.getFile("json", "5_mile_airport.geojson");
-        if (!airportJson.exists())
+        if (!airportJson.exists()) {
             fileUtils.copyAssetToFile("5_mile_airport.geojson", airportJson, callback);
+        }
 
         File militaryJson = fileUtils.getFile("json", "us_military.geojson");
-        if (militaryJson.exists())
+        if (!militaryJson.exists())
             fileUtils.copyAssetToFile("us_military.geojson", militaryJson, callback);
     }
 
@@ -190,15 +187,17 @@ public class StartFlightActivity extends AppCompatActivity {
         super.onSaveInstanceState(outState);
     }
 
-    // Method to start the service
-    public void startService() {
-        Intent msgIntent = new Intent(this, NotificationService.class);
-        msgIntent.putExtra(NotificationService.SERVICE_IN_PARAM, "start activity");
-        startService(msgIntent);
+    public void startLocationCheckingService() {
+
+        if (serviceIsRunning(LocationCheckingService.class)) {
+            stopLocationCheckingService();
+        }
+
+        Intent intent = new Intent(getBaseContext(), LocationCheckingService.class);
+        startService(intent);
     }
 
-    // Method to stop the service
-    public void stopService(View view) {
+    public void stopLocationCheckingService() {
         stopService(new Intent(getBaseContext(), NotificationService.class));
     }
 
@@ -274,6 +273,7 @@ public class StartFlightActivity extends AppCompatActivity {
             @Override
             public void onConnected() {
                 startInFlightActivity();
+                startLocationCheckingService();
                 droneHelper.unregisterListener(this);
                 dialog.dismiss();
             }
@@ -425,6 +425,16 @@ public class StartFlightActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         refreshWeather();
+    }
+
+    private boolean serviceIsRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }
