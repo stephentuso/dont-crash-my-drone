@@ -120,9 +120,11 @@ public class StartFlightActivity extends AppCompatActivity {
         if (droneHelper.isConnected()) {
             startInFlightActivity();
         } else if (!loginStarted) { //Start the login activity TODO: Only start if user hasn't logged in - store/check bool in sharedPrefs
+            /*Disabled this because we aren't doing anything with it
             loginStarted = true;
             Intent loginIntent = new Intent(this, MainActivity.class);
             startActivity(loginIntent);
+            */
         }
 
         if (!locationHelper.permissionsGranted())

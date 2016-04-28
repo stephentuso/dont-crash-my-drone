@@ -77,7 +77,7 @@ public class LocationCheckingService extends IntentService {
             loadPolygons();
         }
 
-        new Timer().scheduleAtFixedRate(new TimerTask() { //TODO: Make this a var and cancel it in onDestroy
+        new Timer().scheduleAtFixedRate(new TimerTask() { //TODO (stephentuso): Make this a var and cancel it in onDestroy (didn't work when I tried)
             @Override
             public void run() {
                 final LatLong location = droneHelper.getLocation();
