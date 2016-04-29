@@ -1,4 +1,4 @@
-Don't Crash My Drone
+Drone Tracker
 ====================
 
 An Android app that show the current flying conditions, connects to a 3DR drone, tracks it, and notifies the user if they are near or in a no fly zone.
