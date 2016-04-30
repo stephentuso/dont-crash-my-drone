@@ -1,0 +1,6 @@
+{
+  "name": "Drone Tracker",
+  "tagline": "NASA Space Apps Hackathon 2016",
+  "body": "An Android app that show the current flying conditions, connects to a 3DR drone, tracks it, and notifies the user if they are near or in a no fly zone.\r\n\r\n[Pre-flight planner web app](https://github.com/awalin/DroneTracker)\r\n\r\n[Drone flight web app](https://github.com/outdreamer/drone-flight)\r\n\r\nCreated at NASA Space Apps Hackathon 2016\r\n",
+  "note": "Don't delete this file! It's used internally to help with page regeneration."
+}
